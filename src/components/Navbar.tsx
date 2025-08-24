@@ -1,80 +1,91 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MapPin, Users, Home } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Home, BookOpen, Gamepad2, LogOut, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-const Navbar = () => {
+export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="gradient-hero rounded-lg p-2">
-              <Users className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 max-w-screen-2xl items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link to="/" className="mr-6 flex items-center space-x-2">
+            <span className="hidden font-bold sm:inline-block bg-gradient-primary bg-clip-text text-transparent">
               StudySpot
             </span>
           </Link>
+        </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1">
-            <Button
-              variant={isActive("/") ? "default" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/" className="flex items-center gap-2">
-                <Home className="h-4 w-4" />
-                Home
-              </Link>
-            </Button>
-            
-            <Button
-              variant={isActive("/study-spots") ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/study-spots" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                Study Spots
-              </Link>
-            </Button>
-            
-            <Button
-              variant={isActive("/recreation-spots") ? "recreation" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/recreation-spots" className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                Recreation
-              </Link>
-            </Button>
-          </div>
+        <nav className="flex items-center gap-4 text-sm lg:gap-6">
+          <Button 
+            variant={location.pathname === "/" ? "default" : "ghost"} 
+            asChild
+          >
+            <Link to="/" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+          </Button>
+          <Button 
+            variant={location.pathname === "/study-spots" ? "secondary" : "ghost"} 
+            asChild
+          >
+            <Link to="/study-spots" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Study
+            </Link>
+          </Button>
+          <Button 
+            variant={location.pathname === "/recreation-spots" ? "default" : "ghost"} 
+            asChild
+          >
+            <Link to="/recreation-spots" className="flex items-center gap-2">
+              <Gamepad2 className="h-4 w-4" />
+              Recreation
+            </Link>
+          </Button>
+        </nav>
 
-          {/* Mobile Menu (simplified for now) */}
-          <div className="md:hidden flex items-center space-x-1">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/study-spots">
-                <BookOpen className="h-4 w-4" />
-              </Link>
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>
+                      {user.email?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span>{user.email}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2">
+                  <LogOut className="h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild>
+              <Link to="/auth">Sign In</Link>
             </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/recreation-spots">
-                <MapPin className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+          )}
         </div>
       </div>
-    </nav>
+    </header>
   );
-};
-
-export default Navbar;
+}

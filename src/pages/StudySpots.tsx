@@ -1,177 +1,127 @@
-import { useState } from "react";
-import FilterBar from "@/components/FilterBar";
+import { useState, useEffect } from "react";
 import SpotCard from "@/components/SpotCard";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Plus } from "lucide-react";
+import FilterBar from "@/components/FilterBar";
+import Navbar from "@/components/Navbar";
+import CreateSpotDialog from "@/components/CreateSpotDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-const StudySpots = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+interface Spot {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  category: string;
+  max_members: number;
+  created_at: string;
+  spot_members: { count: number }[];
+}
 
-  // Mock data - would come from API
-  const studySpots = [
-    {
-      id: "1",
-      name: "Central Library - 3rd Floor",
-      description: "Quiet study area with individual desks and excellent lighting. Perfect for focused work and exam preparation.",
-      location: "Main Campus, Building A",
-      rating: 4.8,
-      tags: ["Quiet", "Individual", "Wi-Fi", "Power Outlets"],
-      type: "study" as const,
-      hasWifi: true,
-      capacity: 50
-    },
-    {
-      id: "2",
-      name: "Student Union Study Lounge",
-      description: "Collaborative space with whiteboards and group tables. Great for project work and study groups.",
-      location: "Student Union, 2nd Floor",
-      rating: 4.5,
-      tags: ["Group Friendly", "Whiteboards", "Collaborative", "Coffee Nearby"],
-      type: "study" as const,
-      hasWifi: true,
-      capacity: 30
-    },
-    {
-      id: "3",
-      name: "Science Building Computer Lab",
-      description: "24/7 access computer lab with high-speed internet and printing facilities.",
-      location: "Science Complex, Ground Floor",
-      rating: 4.7,
-      tags: ["24/7", "Computers", "Printing", "High-Speed Internet"],
-      type: "study" as const,
-      hasWifi: true,
-      capacity: 40
-    },
-    {
-      id: "4",
-      name: "Garden Café Study Corner",
-      description: "Cozy corner with comfortable seating and natural light. Light background music and coffee available.",
-      location: "Campus Center",
-      rating: 4.3,
-      tags: ["Cozy", "Coffee", "Natural Light", "Background Music"],
-      type: "study" as const,
-      hasWifi: true,
-      capacity: 15
-    },
-    {
-      id: "5",
-      name: "Law Library Silent Zone",
-      description: "Ultra-quiet zone with strict no-talking policy. Ideal for intensive study sessions.",
-      location: "Law Building, 1st Floor",
-      rating: 4.9,
-      tags: ["Silent", "No Talking", "Intensive Study", "Individual"],
-      type: "study" as const,
-      hasWifi: true,
-      capacity: 25
-    },
-    {
-      id: "6",
-      name: "Engineering Workshop Space",
-      description: "Open workspace with tools and equipment for hands-on learning and project development.",
-      location: "Engineering Building, Basement",
-      rating: 4.6,
-      tags: ["Hands-on", "Tools", "Projects", "Workshop"],
-      type: "study" as const,
-      hasWifi: true,
-      capacity: 20
+export default function StudySpots() {
+  const [spots, setSpots] = useState<Spot[]>([]);
+  const [filteredSpots, setFilteredSpots] = useState<Spot[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchSpots();
+  }, []);
+
+  const fetchSpots = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('spots')
+        .select(`
+          id,
+          name,
+          description,
+          location,
+          category,
+          max_members,
+          created_at,
+          spot_members (count)
+        `)
+        .eq('type', 'study')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSpots(data || []);
+      setFilteredSpots(data || []);
+    } catch (error) {
+      console.error('Error fetching spots:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const availableTags = Array.from(new Set(studySpots.flatMap(spot => spot.tags)));
-
-  const filteredSpots = studySpots.filter(spot => {
-    const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         spot.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         spot.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.every(tag => spot.tags.includes(tag));
-    
-    return matchesSearch && matchesTags;
-  });
-
-  const handleTagToggle = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
   };
 
-  const handleJoinSession = (spotId: string) => {
-    // Would handle joining study session
-    console.log("Joining study session at spot:", spotId);
+  const categories = ["All", "Math", "Science", "Literature", "History", "Computer Science", "Languages", "Arts", "General"];
+
+  useEffect(() => {
+    if (selectedCategory === "All") {
+      setFilteredSpots(spots);
+    } else {
+      setFilteredSpots(spots.filter(spot => spot.category === selectedCategory));
+    }
+  }, [selectedCategory, spots]);
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} days ago`;
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-secondary rounded-full mb-4">
-            <BookOpen className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold mb-4">Study Spots</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Find the perfect environment for your learning style. From silent libraries to collaborative spaces.
-          </p>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-foreground">Study Spots</h1>
+          {user && <CreateSpotDialog type="study" onSpotCreated={fetchSpots} />}
         </div>
 
-        {/* Filters */}
-        <div className="mb-8">
-          <FilterBar
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedTags={selectedTags}
-            onTagToggle={handleTagToggle}
-            availableTags={availableTags}
-            type="study"
-          />
-        </div>
+        <FilterBar
+          searchTerm=""
+          onSearchChange={() => {}}
+          selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
+          onTagToggle={setSelectedCategory}
+          availableTags={categories.slice(1)}
+          type="study"
+        />
 
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold">Available Study Spots</h2>
-            <p className="text-muted-foreground">
-              {filteredSpots.length} spots found
-              {selectedTags.length > 0 && ` with filters: ${selectedTags.join(", ")}`}
-            </p>
-          </div>
-          <Button variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Spot
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            <div className="col-span-full text-center py-8 text-muted-foreground">
+              Loading spots...
+            </div>
+          ) : filteredSpots.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-muted-foreground">
+              No study spots found. {user ? "Create the first one!" : ""}
+            </div>
+          ) : (
+            filteredSpots.map((spot) => (
+              <SpotCard 
+                key={spot.id}
+                id={spot.id}
+                title={spot.name}
+                description={spot.description || "No description provided"}
+                location={spot.location || "Location TBD"}
+                category={spot.category || "General"}
+                members={spot.spot_members?.[0]?.count || 0}
+                maxMembers={spot.max_members}
+                timeAgo={formatTimeAgo(spot.created_at)}
+                type="study"
+              />
+            ))
+          )}
         </div>
-
-        {/* Study Spots Grid */}
-        {filteredSpots.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSpots.map((spot, index) => (
-              <div key={spot.id} style={{ animationDelay: `${index * 0.1}s` }}>
-                <SpotCard spot={spot} onJoin={handleJoinSession} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No study spots found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your search or filter criteria
-            </p>
-            <Button variant="outline" onClick={() => {
-              setSearchTerm("");
-              setSelectedTags([]);
-            }}>
-              Clear All Filters
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
-};
-
-export default StudySpots;
+}

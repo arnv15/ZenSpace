@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, MapPin, Users, Star, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
 
 const Home = () => {
+  const { user } = useAuth();
   const features = [
     {
       icon: BookOpen,
@@ -36,7 +39,8 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
+      <Navbar />
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 gradient-hero opacity-10 rounded-3xl mx-4"></div>
@@ -140,6 +144,13 @@ const Home = () => {
                 Start Exploring
               </Link>
             </Button>
+            {!user && (
+              <Button size="lg" variant="secondary" asChild>
+                <Link to="/auth">
+                  Get Started
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>

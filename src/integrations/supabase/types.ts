@@ -14,7 +14,139 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          spot_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          spot_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          spot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      spot_members: {
+        Row: {
+          id: string
+          joined_at: string
+          spot_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          spot_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          spot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spot_members_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      spots: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_online: boolean | null
+          location: string | null
+          max_members: number | null
+          name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_online?: boolean | null
+          location?: string | null
+          max_members?: number | null
+          name: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_online?: boolean | null
+          location?: string | null
+          max_members?: number | null
+          name?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
