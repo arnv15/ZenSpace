@@ -6,7 +6,7 @@ import CreateSpotDialog from "@/components/CreateSpotDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-interface Spot {
+type Spot = {
   id: string;
   name: string;
   description: string;
@@ -15,14 +15,51 @@ interface Spot {
   max_members: number;
   created_at: string;
   spot_members: { count: number }[];
-}
+  created_by: string;
+};
 
 export default function RecreationSpots() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<Spot[]>([]);
+  const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  // Edit Spot Handlers
+  const handleEditClick = (spot: Spot) => {
+    setEditingSpot(spot);
+    setEditForm({ ...spot });
+  };
+
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSave = async () => {
+    if (!editingSpot) return;
+    const { error } = await supabase
+      .from("spots")
+      .update({
+        name: editForm.name,
+        description: editForm.description,
+        location: editForm.location,
+        category: editForm.category,
+        max_members: Number(editForm.max_members),
+      })
+      .eq("id", editingSpot.id);
+    if (!error) {
+      setEditingSpot(null);
+      fetchSpots();
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("spots").delete().eq("id", id);
+    fetchSpots();
+  };
 
   useEffect(() => {
     fetchSpots();
@@ -32,8 +69,9 @@ export default function RecreationSpots() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('spots')
-        .select(`
+        .from("spots")
+        .select(
+          `
           id,
           name,
           description,
@@ -41,36 +79,53 @@ export default function RecreationSpots() {
           category,
           max_members,
           created_at,
+          created_by,
           spot_members (count)
-        `)
-        .eq('type', 'recreation')
-        .order('created_at', { ascending: false });
+        `
+        )
+        .eq("type", "recreation")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setSpots(data || []);
       setFilteredSpots(data || []);
     } catch (error) {
-      console.error('Error fetching spots:', error);
+      console.error("Error fetching spots:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const categories = ["All", "Soccer", "Basketball", "Swimming", "Tennis", "Volleyball", "Running", "Cycling", "Gaming", "General"];
+  const categories = [
+    "All",
+    "Soccer",
+    "Basketball",
+    "Swimming",
+    "Tennis",
+    "Volleyball",
+    "Running",
+    "Cycling",
+    "Gaming",
+    "General",
+  ];
 
   useEffect(() => {
     if (selectedCategory === "All") {
       setFilteredSpots(spots);
     } else {
-      setFilteredSpots(spots.filter(spot => spot.category === selectedCategory));
+      setFilteredSpots(
+        spots.filter((spot) => spot.category === selectedCategory)
+      );
     }
   }, [selectedCategory, spots]);
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
     const date = new Date(dateString);
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
     if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${diffInHours} hours ago`;
     const diffInDays = Math.floor(diffInHours / 24);
@@ -82,20 +137,70 @@ export default function RecreationSpots() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Recreation Spots</h1>
-          {user && <CreateSpotDialog type="recreation" onSpotCreated={fetchSpots} />}
+          <h1 className="text-3xl font-bold text-foreground">
+            Recreation Spots
+          </h1>
+          {user && (
+            <CreateSpotDialog type="recreation" onSpotCreated={fetchSpots} />
+          )}
         </div>
 
-        <FilterBar
-          searchTerm=""
-          onSearchChange={() => {}}
-          selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
-          onTagToggle={setSelectedCategory}
-          availableTags={categories.slice(1)}
-          type="recreation"
-        />
+        {/* Owned Rooms Card Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          {user &&
+            filteredSpots
+              .filter((spot) => spot.created_by === user.id)
+              .map((spot) => (
+                <div
+                  key={spot.id}
+                  className="relative flex flex-col border rounded-lg p-6 bg-card shadow-md min-h-[220px]"
+                >
+                  <div className="font-bold text-xl text-center mb-1">
+                    {spot.name}
+                  </div>
+                  <div className="text-center text-muted-foreground mb-2">
+                    {spot.description}
+                  </div>
+                  <div className="flex flex-col items-center text-xs mb-2">
+                    <span>Location: {spot.location}</span>
+                    <span>Category: {spot.category}</span>
+                    <span>Max Members: {spot.max_members}</span>
+                  </div>
+                  {/* Edit/Delete Buttons at bottom center */}
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-3">
+                    <button
+                      className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                      onClick={() => handleEditClick(spot)}
+                      type="button"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="px-4 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700 transition"
+                      onClick={() => handleDelete(spot.id)}
+                      type="button"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Add spacing below owned rooms */}
+        <div className="mb-10">
+          <FilterBar
+            searchTerm=""
+            onSearchChange={() => {}}
+            selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
+            onTagToggle={setSelectedCategory}
+            availableTags={categories.slice(1)}
+            type="recreation"
+          />
+        </div>
+
+        {/* All Recreation Spots (including owned) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           {loading ? (
             <div className="col-span-full text-center py-8 text-muted-foreground">
               Loading spots...
@@ -106,7 +211,7 @@ export default function RecreationSpots() {
             </div>
           ) : (
             filteredSpots.map((spot) => (
-              <SpotCard 
+              <SpotCard
                 key={spot.id}
                 id={spot.id}
                 title={spot.name}

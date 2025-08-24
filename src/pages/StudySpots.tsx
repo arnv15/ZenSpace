@@ -254,52 +254,62 @@ export default function StudySpots() {
               </div>
             </>
           ) : (
-            <>
-              {/* Spot Display */}
-              {filteredSpots.map((spot) => (
-                <div key={spot.id} className="space-y-2 border p-2 rounded">
-                  <div className="font-bold text-lg">{spot.name}</div>
-                  <div className="text-sm text-muted-foreground mb-1">
-                    {spot.description}
-                  </div>
-                  <div className="text-xs mb-1">Location: {spot.location}</div>
-                  <div className="text-xs mb-1">Category: {spot.category}</div>
-                  <div className="text-xs mb-1">
-                    Max Members: {spot.max_members}
-                  </div>
-
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      className="px-3 py-1 bg-blue-500 text-white rounded"
-                      onClick={() => handleEditClick(spot)}
-                      type="button"
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {user &&
+                filteredSpots
+                  .filter((spot) => spot.created_by === user.id)
+                  .map((spot) => (
+                    <div
+                      key={spot.id}
+                      className="relative flex flex-col border rounded-lg p-6 bg-card shadow-md min-h-[220px]"
                     >
-                      Edit
-                    </button>
-                    <button
-                      className="px-3 py-1 bg-red-500 text-white rounded"
-                      onClick={() => handleDelete(spot.id)}
-                      type="button"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </>
+                      <div className="font-bold text-xl text-center mb-1">
+                        {spot.name}
+                      </div>
+                      <div className="text-center text-muted-foreground mb-2">
+                        {spot.description}
+                      </div>
+                      <div className="flex flex-col items-center text-xs mb-2">
+                        <span>Location: {spot.location}</span>
+                        <span>Category: {spot.category}</span>
+                        <span>Max Members: {spot.max_members}</span>
+                      </div>
+                      {/* Edit/Delete Buttons at bottom center */}
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-3">
+                        <button
+                          className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                          onClick={() => handleEditClick(spot)}
+                          type="button"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="px-4 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700 transition"
+                          onClick={() => handleDelete(spot.id)}
+                          type="button"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+            </div>
           )}
         </div>
 
-        <FilterBar
-          searchTerm=""
-          onSearchChange={() => {}}
-          selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
-          onTagToggle={setSelectedCategory}
-          availableTags={categories.slice(1)}
-          type="study"
-        />
+        {/* Add spacing below owned rooms */}
+        <div className="mb-10">
+          <FilterBar
+            searchTerm=""
+            onSearchChange={() => {}}
+            selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
+            onTagToggle={setSelectedCategory}
+            availableTags={categories.slice(1)}
+            type="study"
+          />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           {loading ? (
             <div className="col-span-full text-center py-8 text-muted-foreground">
               Loading spots...

@@ -63,7 +63,7 @@ export default function SpotCard({
           <div className="flex gap-2 mt-auto">
             <Button size="sm" onClick={() => setChatOpen(true)}>
               <MessageCircle className="h-4 w-4 mr-1" />
-              Join Chat
+              Join Group
             </Button>
             <Button variant="outline" size="sm">
               View Details
