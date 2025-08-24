@@ -1,13 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from '@/hooks/useAuth';
-import Index from './pages/Index';
-import Home from './pages/Home';
-import Auth from './pages/Auth';
-import StudySpots from './pages/StudySpots';
-import RecreationSpots from './pages/RecreationSpots';
-import NotFound from './pages/NotFound';
-import './App.css';
+import { AuthProvider } from "@/hooks/useAuth";
+import Index from "./pages/Index";
+import Home from "./pages/Home";
+import Auth from "./pages/Auth";
+import StudySpots from "./pages/StudySpots";
+import RecreationSpots from "./pages/RecreationSpots";
+import NotFound from "./pages/NotFound";
+import "./App.css";
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-background">
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/study-spots" element={<StudySpots />} />

@@ -1,73 +1,127 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 interface CreateSpotDialogProps {
-  type: 'study' | 'recreation';
+  type: "study" | "recreation";
   onSpotCreated?: () => void;
 }
 
-const studyCategories = ['Math', 'Science', 'Literature', 'History', 'Computer Science', 'Languages', 'Arts', 'General'];
-const recreationCategories = ['Soccer', 'Basketball', 'Swimming', 'Tennis', 'Volleyball', 'Running', 'Cycling', 'Gaming', 'General'];
+const studyCategories = [
+  "Math",
+  "Science",
+  "Literature",
+  "History",
+  "Computer Science",
+  "Languages",
+  "Arts",
+  "General",
+];
+const recreationCategories = [
+  "Soccer",
+  "Basketball",
+  "Swimming",
+  "Tennis",
+  "Volleyball",
+  "Running",
+  "Cycling",
+  "Gaming",
+  "General",
+];
+const amenitiesList = [
+  "WiFi",
+  "Whiteboard",
+  "Power Outlets",
+  "Snacks",
+  "Drinks",
+  "Quiet Area",
+  "Group Tables",
+  "Projector",
+  "Parking",
+  "Restrooms",
+];
 
-export default function CreateSpotDialog({ type, onSpotCreated }: CreateSpotDialogProps) {
+export default function CreateSpotDialog({
+  type,
+  onSpotCreated,
+}: CreateSpotDialogProps) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [category, setCategory] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
   const [isOnline, setIsOnline] = useState(false);
-  const [maxMembers, setMaxMembers] = useState('10');
+  const [maxMembers, setMaxMembers] = useState("10");
+  const [amenities, setAmenities] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  const categories = type === 'study' ? studyCategories : recreationCategories;
+  const categories = type === "study" ? studyCategories : recreationCategories;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      toast.error('You must be logged in to create a spot');
+      toast.error("You must be logged in to create a spot");
       return;
     }
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('spots')
-        .insert({
-          name,
-          description,
-          location: isOnline ? 'Online' : location,
-          is_online: isOnline,
-          type,
-          category,
-          max_members: parseInt(maxMembers),
-          created_by: user.id
-        });
+      const { error } = await supabase.from("spots").insert({
+        name,
+        description,
+        location: isOnline ? "Online" : location,
+        is_online: isOnline,
+        type,
+        category,
+        amenities,
+        max_members: parseInt(maxMembers),
+        created_by: user.id,
+      });
 
       if (error) throw error;
 
-      toast.success(`${type === 'study' ? 'Study' : 'Recreation'} spot created successfully!`);
+      toast.success(
+        `${
+          type === "study" ? "Study" : "Recreation"
+        } spot created successfully!`
+      );
       setOpen(false);
-      setName('');
-      setDescription('');
-      setLocation('');
-      setCategory('');
+      setName("");
+      setDescription("");
+      setLocation("");
+      setCategory("");
       setIsOnline(false);
-      setMaxMembers('10');
+      setMaxMembers("10");
+      setAmenities([]);
       onSpotCreated?.();
     } catch (error) {
-      console.error('Error creating spot:', error);
-      toast.error('Failed to create spot');
+      console.error("Error creating spot:", error);
+      toast.error("Failed to create spot");
     } finally {
       setLoading(false);
     }
@@ -78,14 +132,23 @@ export default function CreateSpotDialog({ type, onSpotCreated }: CreateSpotDial
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
-          Create {type === 'study' ? 'Study' : 'Recreation'} Spot
+          Create {type === "study" ? "Study" : "Recreation"} Spot
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="w-full max-w-2xl overflow-y-auto"
+        style={{ scrollBehavior: "smooth", maxHeight: "90vh" }}
+      >
         <DialogHeader>
-          <DialogTitle>Create {type === 'study' ? 'Study' : 'Recreation'} Spot</DialogTitle>
+          <DialogTitle>
+            Create {type === "study" ? "Study" : "Recreation"} Spot
+          </DialogTitle>
           <DialogDescription>
-            Create a new spot where students can connect and {type === 'study' ? 'study together' : 'enjoy recreational activities'}.
+            Create a new spot where students can connect and{" "}
+            {type === "study"
+              ? "study together"
+              : "enjoy recreational activities"}
+            .
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -99,7 +162,7 @@ export default function CreateSpotDialog({ type, onSpotCreated }: CreateSpotDial
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={setCategory} required>
@@ -108,7 +171,9 @@ export default function CreateSpotDialog({ type, onSpotCreated }: CreateSpotDial
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -123,6 +188,25 @@ export default function CreateSpotDialog({ type, onSpotCreated }: CreateSpotDial
               placeholder="Describe your spot and what you'll be doing"
               rows={3}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Amenities</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {amenitiesList.map((am) => (
+                <label key={am} className="flex items-center gap-2">
+                  <Checkbox
+                    checked={amenities.includes(am)}
+                    onCheckedChange={(checked) => {
+                      setAmenities((prev) =>
+                        checked ? [...prev, am] : prev.filter((a) => a !== am)
+                      );
+                    }}
+                  />
+                  <span>{am}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -162,11 +246,15 @@ export default function CreateSpotDialog({ type, onSpotCreated }: CreateSpotDial
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Spot'}
+              {loading ? "Creating..." : "Create Spot"}
             </Button>
           </DialogFooter>
         </form>
