@@ -1,65 +1,56 @@
-ZenSpace
+ZenSpace Inspiration
+As students, we often struggle to find the right place to study or relax. Whether it’s working on a group project or just needing a quiet spot with good WiFi, the lack of reliable information on things like noise levels or availability can be frustrating.
 
-ZenSpace is a web app that helps students discover the best study and recreation spots around them, rated for productivity and well-being. Whether you need a quiet space with strong WiFi or a lively spot to recharge with friends, ZenSpace connects you to the right place.
+ZenSpace was born out of this challenge — to create a tool that helps students balance productivity and well-being.
 
-Inspiration
+🚀 What It Does
+ZenSpace is a web app that helps students discover study or recreation spots that best fit their needs.
 
-As students, we often struggle to find the right place to study or relax. We’ve run into the same problem again and again: there’s no easy way to know about WiFi quality, noise levels, or availability of seats before arriving. ZenSpace was created to solve this frustration and make it easier to balance productivity and well-being.
+  Spots are created by students for students.
+  
+  Each spot is rated on key factors such as:
+  
+  WiFi quality
+  
+  Seating availability
+  
+  Noise level
+  
+  We’ve already set up a database of known spots in our local area to get students started.
 
-What it does
+🛠️ How We Built It
+  Frontend: ReactJS
+  
+  Backend: Python + Flask (for routes and API calls)
+  
+  AI Integration: OpenAI API
+  
+  Database: A low-cost/free solution optimized for quick setup
 
-ZenSpace allows students to:
+⚔️ Challenges We Ran Into
+  Combining both study and recreation data into a single, intuitive experience.
+  
+  Finding a database solution that was both affordable and reliable.
 
-Browse a list of study and recreation spots shared by peers.
+✅ Accomplishments We’re Proud Of
+  Built a fully functional MVP in just 36 hours.
+  
+  Designed a clean, user-friendly interface.
+  
+  Successfully connected Flask with our frontend and database under significant time pressure.
 
-View ratings for amenities like WiFi, seating, and noise level.
+📚 What We Learned
+  How to plan, design, and launch a full-stack project quickly.
+  
+  The importance of structuring a database for scalability and future features.
+  
+  Improved our technical skills across the entire tech stack.
 
-Find places that best match their needs, whether for focused studying or group projects.
+🔮 What’s Next for ZenSpace
+We see ZenSpace as more than just a spot-finder — it’s a community. Future features we want to add include:
 
-How we built it
-
-Frontend: ReactJS
-
-Backend: Python with Flask (routes & API handling)
-
-AI Integration: OpenAI API
-
-Database: Custom setup with curated local spot data
-
-Challenges we ran into
-
-Combining study and recreation data in a way that felt intuitive.
-
-Finding a reliable, low-cost (or free) database option.
-
-Integrating the full stack (React + Flask + database) under hackathon time constraints.
-
-Accomplishments that we're proud of
-
-Built a fully working MVP in 36 hours.
-
-Designed a clean, user-friendly interface.
-
-Successfully connected Flask, the frontend, and the database under time pressure.
-
-What we learned
-
-How to build and ship a full-stack project quickly.
-
-The importance of planning and structuring the database for future growth.
-
-Improved our technical skills across React, Flask, and API integration.
-
-What's next for ZenSpace
-
-We plan to expand ZenSpace with features like:
-
-A community rating system to gamify engagement.
-
-An interactive map with location-based search to find top-rated spots nearby.
-
-A tutoring system to connect students beyond just study spots.
-
-Team
-
-Built by Arnav Gupta and Arnav Pandey during Recess Hacks 5.0
+  Gamification: Implementing a community rating and reward system.
+  
+  Interactive Maps: Showing top-rated spots near the user's location.
+  
+  Tutoring System: A feature to connect students seeking help with peers who can offer support.
