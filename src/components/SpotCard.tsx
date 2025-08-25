@@ -17,16 +17,16 @@ interface SpotCardProps {
   type: "study" | "recreation";
 }
 
-export default function SpotCard({ 
+export default function SpotCard({
   id,
-  title, 
-  description, 
-  location, 
-  category, 
-  members, 
-  maxMembers, 
-  timeAgo, 
-  type 
+  title,
+  description,
+  location,
+  category,
+  members,
+  maxMembers,
+  timeAgo,
+  type,
 }: SpotCardProps) {
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -41,10 +41,10 @@ export default function SpotCard({
             </Badge>
           </div>
         </CardHeader>
-        
+
         <CardContent className="flex-1 flex flex-col">
           <p className="text-sm text-muted-foreground mb-3">{description}</p>
-          
+
           <div className="space-y-2 mb-4">
             <div className="flex items-center text-sm text-muted-foreground">
               <MapPin className="h-4 w-4 mr-1" />
@@ -59,7 +59,7 @@ export default function SpotCard({
               {timeAgo}
             </div>
           </div>
-          
+
           <div className="flex gap-2 mt-auto">
             <Button size="sm" onClick={() => setChatOpen(true)}>
               <MessageCircle className="h-4 w-4 mr-1" />
@@ -71,8 +71,8 @@ export default function SpotCard({
           </div>
         </CardContent>
       </Card>
-      
-      <SpotChat 
+
+      <SpotChat
         spotId={id}
         spotName={title}
         open={chatOpen}

@@ -91,19 +91,32 @@ export default function CreateSpotDialog({
 
     setLoading(true);
     try {
-      const { error } = await supabase.from("spots").insert({
-        name,
-        description,
-        location: isOnline ? "Online" : location,
-        is_online: isOnline,
-        type,
-        category,
-        amenities,
-        max_members: parseInt(maxMembers),
-        created_by: user.id,
-      });
+      // Always include creator in max_members
+      const maxMembersInt = Math.max(1, parseInt(maxMembers));
+      const { data, error } = await supabase
+        .from("spots")
+        .insert({
+          name,
+          description,
+          location: isOnline ? "Online" : location,
+          is_online: isOnline,
+          type,
+          category,
+          amenities,
+          max_members: maxMembersInt,
+          created_by: user.id,
+        })
+        .select();
 
       if (error) throw error;
+      const spotId = data?.[0]?.id;
+      if (spotId) {
+        // Add creator as a member
+        await supabase.from("spot_members").insert({
+          spot_id: spotId,
+          user_id: user.id,
+        });
+      }
 
       toast.success(
         `${

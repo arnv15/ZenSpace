@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getUserSpotIds } from "@/lib/getUserSpotIds";
 import SpotCard from "@/components/SpotCard";
 import FilterBar from "@/components/FilterBar";
 import Navbar from "@/components/Navbar";
@@ -19,12 +20,14 @@ type Spot = {
 };
 
 export default function RecreationSpots() {
+  const [spots, setSpots] = useState<Spot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<Spot[]>([]);
   const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
 
   // State for search bar
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +39,7 @@ export default function RecreationSpots() {
       const response = await fetch("/api/ai/search_spots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, type: "recreation" })
+        body: JSON.stringify({ query, type: "recreation" }),
       });
       // Parse AI response
       const result = await response.json();
@@ -90,8 +93,16 @@ export default function RecreationSpots() {
   };
 
   useEffect(() => {
-    fetchSpots();
-  }, []);
+    async function load() {
+      if (user) {
+        setExcludedIds(await getUserSpotIds(user.id));
+      } else {
+        setExcludedIds(new Set());
+      }
+      fetchSpots();
+    }
+    load();
+  }, [user]);
 
   const fetchSpots = async () => {
     setLoading(true);
@@ -114,10 +125,16 @@ export default function RecreationSpots() {
         .eq("type", "recreation")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setSpots(data || []);
-      setFilteredSpots(data || []);
+      if (error || !Array.isArray(data)) {
+        setSpots([]);
+        setFilteredSpots([]);
+        return;
+      }
+      setSpots(data);
+      setFilteredSpots(data);
     } catch (error) {
+      setSpots([]);
+      setFilteredSpots([]);
       console.error("Error fetching spots:", error);
     } finally {
       setLoading(false);
@@ -138,14 +155,12 @@ export default function RecreationSpots() {
   ];
 
   useEffect(() => {
-    if (selectedCategory === "All") {
-      setFilteredSpots(spots);
-    } else {
-      setFilteredSpots(
-        spots.filter((spot) => spot.category === selectedCategory)
-      );
+    let visible = spots.filter((spot) => !excludedIds.has(spot.id));
+    if (selectedCategory !== "All") {
+      visible = visible.filter((spot) => spot.category === selectedCategory);
     }
-  }, [selectedCategory, spots]);
+    setFilteredSpots(visible);
+  }, [selectedCategory, spots, excludedIds]);
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();

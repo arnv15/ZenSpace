@@ -6,7 +6,7 @@ import openai  # OpenAI API
 
 load_dotenv()  # Load environment variables from .env
 # openai.api_key = os.environ.get("OPENAI_API_KEY")
-openai.api_key = "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"  # Set OpenAI API key directly
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Set OpenAI API key directly
 
 # --- Format study spot answers for display ---
 def format_study_spots(spots):

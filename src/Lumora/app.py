@@ -24,5 +24,7 @@ def register_blueprints(app):
 # --- Main entry point ---
 if __name__ == '__main__':
     with app.app_context():
+        print("Registering blueprints...")
         register_blueprints(app)  # Register all routes
+        print("Blueprints registered.")
         app.run(debug=True)  # Start Flask server

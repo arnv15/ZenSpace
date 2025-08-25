@@ -16,11 +16,23 @@ def allowed_file(filename):
 
 @ai_bp.route('/', methods=['POST'])
 def recommend():
+    print("recommend endpoint hit")
     data = request.json
     user_query = data.get('query')
-    parsed = parse_query(user_query)
-    results = recommend_spots(parsed)
-    return jsonify(results)
+    # Use OpenAI to answer general homework questions
+    import openai
+    import os
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": user_query}]
+        )
+        answer = response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"OpenAI error: {e}")
+        answer = "Sorry, I couldn't answer that question."
+    return jsonify({"answer": answer})
 
 @ai_bp.route('/upload', methods=['POST'])
 def upload_image():

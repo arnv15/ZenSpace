@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { getUserSpotIds } from "@/lib/getUserSpotIds";
 import SpotCard from "@/components/SpotCard";
 import FilterBar from "@/components/FilterBar";
 import Navbar from "@/components/Navbar";
@@ -20,6 +21,7 @@ type Spot = {
 };
 
 export default function StudySpots() {
+  const [spots, setSpots] = useState<Spot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<Spot[]>([]);
   const [yourSpots, setYourSpots] = useState<Spot[]>([]);
   const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
@@ -27,6 +29,7 @@ export default function StudySpots() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
 
   // State for search bar
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +41,7 @@ export default function StudySpots() {
       const response = await fetch("/api/ai/search_spots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, type: "study" })
+        body: JSON.stringify({ query, type: "study" }),
       });
       // Parse AI response
       const result = await response.json();
@@ -58,7 +61,15 @@ export default function StudySpots() {
   };
 
   useEffect(() => {
-    fetchSpots();
+    async function load() {
+      if (user) {
+        setExcludedIds(await getUserSpotIds(user.id));
+      } else {
+        setExcludedIds(new Set());
+      }
+      fetchSpots();
+    }
+    load();
     // Subscribe to real-time updates
     const channel = supabase
       .channel("realtime:spots")
@@ -66,14 +77,14 @@ export default function StudySpots() {
         "postgres_changes",
         { event: "*", schema: "public", table: "spots" },
         () => {
-          fetchSpots();
+          load();
         }
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user]);
 
   const fetchSpots = useCallback(async () => {
     setLoading(true);
@@ -159,13 +170,11 @@ export default function StudySpots() {
   ];
 
   useEffect(() => {
-    if (selectedCategory === "All") {
-      setFilteredSpots(spots);
-    } else {
-      setFilteredSpots(
-        spots.filter((spot) => spot.category === selectedCategory)
-      );
+    let visible = spots.filter((spot) => !excludedIds.has(spot.id));
+    if (selectedCategory !== "All") {
+      visible = visible.filter((spot) => spot.category === selectedCategory);
     }
+    setFilteredSpots(visible);
     if (user) {
       setYourSpots(spots.filter((s: Spot) => s.created_by === user.id));
     }
@@ -313,7 +322,3 @@ export default function StudySpots() {
     </>
   );
 }
-function setSpots(arg0: undefined[]) {
-  throw new Error("Function not implemented.");
-}
-
