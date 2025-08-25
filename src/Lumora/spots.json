@@ -1,0 +1,211 @@
+{
+  "study_spots": [
+    {
+      "name": "Milpitas Public Library",
+      "location": "160 N Main St, Milpitas, CA",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Voyager – St. John",
+      "location": "111 W St John St, San Jose, CA",
+      "noise_level": "moderate"
+    },
+    {
+      "name": "MoonBean’s Coffee",
+      "location": "6219 Santa Teresa Blvd, San Jose, CA",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Dr. ink",
+      "location": "77 N Almaden Ave Suite 70, San Jose, CA",
+      "noise_level": "moderate"
+    },
+    {
+      "name": "Philz Coffee (Downtown San Jose)",
+      "location": "118 Paseo de San Antonio, San Jose, CA",
+      "noise_level": "medium"
+    },
+    {
+      "name": "Central Library",
+      "location": "123 Main St",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "North Reading Room",
+      "location": "456 College Ave",
+      "noise_level": "very quiet"
+    },
+    {
+      "name": "Campus Cafe",
+      "location": "789 University Blvd",
+      "noise_level": "moderate"
+    },
+    {
+      "name": "Science Study Hall",
+      "location": "321 Science Rd",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Student Lounge",
+      "location": "654 Student Ln",
+      "noise_level": "moderate"
+    },
+    {
+      "name": "Milpitas Library",
+      "location": "160 N Main St",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Quiet Coffee House",
+      "location": "Downtown",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Starbucks Milpitas",
+      "location": "Milpitas",
+      "noise_level": "medium"
+    },
+    {
+      "name": "Berryessa Branch Library",
+      "location": "3355 Noble Ave, San Jose, CA",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Peet's Coffee Milpitas",
+      "location": "567 Great Mall Dr, Milpitas, CA",
+      "noise_level": "medium"
+    },
+    {
+      "name": "San Jose State University MLK Library",
+      "location": "150 E San Fernando St, San Jose, CA",
+      "noise_level": "quiet"
+    },
+    {
+      "name": "Online Study Room",
+      "location": "online",
+      "noise_level": "varies"
+    }
+  ],
+  "recreation_spots": [
+    {
+      "name": "Peter D. Gill Memorial Park",
+      "location": "Milpitas, CA",
+      "activity": "basketball, pickleball, tennis",
+      "amenities": "courts"
+    },
+    {
+      "name": "Ed R. Levin County Park",
+      "location": "Milpitas, CA",
+      "activity": "hiking, hang-gliding, dog park",
+      "amenities": "trails, lakes, open space"
+    },
+    {
+      "name": "Fremont Central Park",
+      "location": "Fremont, CA",
+      "activity": "walking, boating, playgrounds, sports",
+      "amenities": "lake, fields, disc golf"
+    },
+    {
+      "name": "Quarry Lakes Regional Recreation Area",
+      "location": "Fremont, CA",
+      "activity": "swimming, swimming, boating, hiking",
+      "amenities": "lakes, trails, picnic spaces"
+    },
+    {
+      "name": "Sabercat Creek Trail",
+      "location": "Fremont → San Jose, CA",
+      "activity": "walking, biking, bird watching",
+      "amenities": "paved trail, benches"
+    },
+    {
+      "name": "Alum Rock Park",
+      "location": "San Jose, CA",
+      "activity": "hiking, picnicking, trail running",
+      "amenities": "trails, visitor center, playgrounds"
+    },
+    {
+      "name": "Kelley Park",
+      "location": "San Jose, CA",
+      "activity": "zoo, gardens, biking",
+      "amenities": "Happy Hollow Zoo, History Park, Japanese Garden"
+    },
+    {
+      "name": "Japanese Friendship Garden",
+      "location": "Kelley Park, San Jose, CA",
+      "activity": "walking, botanical",
+      "amenities": "ponds, teahouse, gardens"
+    },
+    {
+      "name": "Guadalupe River Park & Gardens",
+      "location": "San Jose, CA",
+      "activity": "walking, biking, art viewing",
+      "amenities": "river trail, public art, green space"
+    },
+    {
+      "name": "Green Park",
+      "location": "111 Park Ave",
+      "activity": "outdoor games",
+      "amenities": "playground, benches"
+    },
+    {
+      "name": "Campus Gym",
+      "location": "222 Fitness St",
+      "activity": "workout",
+      "amenities": "weights, cardio"
+    },
+    {
+      "name": "Arts Center",
+      "location": "333 Arts Blvd",
+      "activity": "painting, crafts",
+      "amenities": "studios, supplies"
+    },
+    {
+      "name": "Rec Room",
+      "location": "444 Rec Hall",
+      "activity": "table tennis, board games",
+      "amenities": "games, snacks"
+    },
+    {
+      "name": "Outdoor Pool",
+      "location": "555 Pool Dr",
+      "activity": "swimming",
+      "amenities": "pool, lounge chairs"
+    },
+    {
+      "name": "Milpitas Sports Center",
+      "location": "1325 E Calaveras Blvd, Milpitas, CA",
+      "activity": "basketball, swimming, gym",
+      "amenities": "courts, pool, gym"
+    },
+    {
+      "name": "Central Park Basketball Court",
+      "location": "Central Park",
+      "activity": "basketball",
+      "amenities": "court"
+    },
+    {
+      "name": "Peter Gill Park",
+      "location": "Peter Gill Park, Milpitas, CA",
+      "activity": "basketball, pickleball, tennis",
+      "amenities": "basketball courts, pickleball courts, tennis courts"
+    },
+    {
+      "name": "Ed R. Levin County Park",
+      "location": "3100 Calaveras Rd, Milpitas, CA",
+      "activity": "hiking, picnics, fishing",
+      "amenities": "trails, picnic areas, lake"
+    },
+    {
+      "name": "Great Mall",
+      "location": "447 Great Mall Dr, Milpitas, CA",
+      "activity": "shopping, dining",
+      "amenities": "stores, restaurants"
+    },
+    {
+      "name": "Shirakawa Park",
+      "location": "2072 Shirakawa Dr, San Jose, CA",
+      "activity": "playground, basketball",
+      "amenities": "playground, basketball court"
+    }
+  ]
+}

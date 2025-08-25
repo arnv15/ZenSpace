@@ -20,7 +20,6 @@ type Spot = {
 };
 
 export default function StudySpots() {
-  const [spots, setSpots] = useState<Spot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<Spot[]>([]);
   const [yourSpots, setYourSpots] = useState<Spot[]>([]);
   const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
@@ -28,6 +27,35 @@ export default function StudySpots() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+
+  // State for search bar
+  const [searchTerm, setSearchTerm] = useState("");
+  // Function to send search query to AI backend and update results
+  const handleAISearch = async (query: string) => {
+    setLoading(true);
+    try {
+      // Send request to AI endpoint
+      const response = await fetch("/api/ai/search_spots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, type: "study" })
+      });
+      // Parse AI response
+      const result = await response.json();
+      // Update displayed results with AI-filtered spots
+      setFilteredSpots(result.spots || []);
+    } catch (error) {
+      console.error("AI search error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Handler for search bar submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Call AI search function
+    handleAISearch(searchTerm);
+  };
 
   useEffect(() => {
     fetchSpots();
@@ -200,115 +228,61 @@ export default function StudySpots() {
           {user && <CreateSpotDialog type="study" onSpotCreated={fetchSpots} />}
         </div>
 
-        <div className="space-y-2">
-          {editingSpot ? (
-            <>
-              {/* Edit Form */}
-              <input
-                className="w-full border rounded p-1"
-                name="name"
-                value={editForm.name}
-                onChange={handleEditChange}
-              />
-              <textarea
-                className="w-full border rounded p-1"
-                name="description"
-                value={editForm.description}
-                onChange={handleEditChange}
-              />
-              <input
-                className="w-full border rounded p-1"
-                name="location"
-                value={editForm.location}
-                onChange={handleEditChange}
-              />
-              <input
-                className="w-full border rounded p-1"
-                name="category"
-                value={editForm.category}
-                onChange={handleEditChange}
-              />
-              <input
-                className="w-full border rounded p-1"
-                name="max_members"
-                type="number"
-                value={editForm.max_members}
-                onChange={handleEditChange}
-              />
-
-              <div className="flex gap-2 mt-2">
-                <button
-                  className="px-3 py-1 bg-green-500 text-white rounded"
-                  onClick={handleEditSave}
-                  type="button"
-                >
-                  Save
-                </button>
-                <button
-                  className="px-3 py-1 bg-gray-300 rounded"
-                  onClick={() => setEditingSpot(null)}
-                  type="button"
-                >
-                  Cancel
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {user &&
-                filteredSpots
-                  .filter((spot) => spot.created_by === user.id)
-                  .map((spot) => (
-                    <div
-                      key={spot.id}
-                      className="relative flex flex-col border rounded-lg p-6 bg-card shadow-md min-h-[220px]"
-                    >
-                      <div className="font-bold text-xl text-center mb-1">
-                        {spot.name}
-                      </div>
-                      <div className="text-center text-muted-foreground mb-2">
-                        {spot.description}
-                      </div>
-                      <div className="flex flex-col items-center text-xs mb-2">
-                        <span>Location: {spot.location}</span>
-                        <span>Category: {spot.category}</span>
-                        <span>Max Members: {spot.max_members}</span>
-                      </div>
-                      {/* Edit/Delete Buttons at bottom center */}
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-3">
-                        <button
-                          className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
-                          onClick={() => handleEditClick(spot)}
-                          type="button"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="px-4 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700 transition"
-                          onClick={() => handleDelete(spot.id)}
-                          type="button"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-            </div>
-          )}
-        </div>
-
-        {/* Add spacing below owned rooms */}
-        <div className="mb-10">
+        {/* Search bar integrated with AI */}
+        <form onSubmit={handleSearchSubmit} className="mb-4">
           <FilterBar
-            searchTerm=""
-            onSearchChange={() => {}}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
             selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
             onTagToggle={setSelectedCategory}
             availableTags={categories.slice(1)}
             type="study"
           />
+        </form>
+
+        {/* Owned Rooms Card Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          {user &&
+            filteredSpots
+              .filter((spot) => spot.created_by === user.id)
+              .map((spot) => (
+                <div
+                  key={spot.id}
+                  className="relative flex flex-col border rounded-lg p-6 bg-card shadow-md min-h-[220px]"
+                >
+                  <div className="font-bold text-xl text-center mb-1">
+                    {spot.name}
+                  </div>
+                  <div className="text-center text-muted-foreground mb-2">
+                    {spot.description}
+                  </div>
+                  <div className="flex flex-col items-center text-xs mb-2">
+                    <span>Location: {spot.location}</span>
+                    <span>Category: {spot.category}</span>
+                    <span>Max Members: {spot.max_members}</span>
+                  </div>
+                  {/* Edit/Delete Buttons at bottom center */}
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-3">
+                    <button
+                      className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                      onClick={() => handleEditClick(spot)}
+                      type="button"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="px-4 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700 transition"
+                      onClick={() => handleDelete(spot.id)}
+                      type="button"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
         </div>
 
+        {/* All Spots Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           {loading ? (
             <div className="col-span-full text-center py-8 text-muted-foreground">
@@ -339,3 +313,7 @@ export default function StudySpots() {
     </>
   );
 }
+function setSpots(arg0: undefined[]) {
+  throw new Error("Function not implemented.");
+}
+

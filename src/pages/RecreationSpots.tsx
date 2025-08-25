@@ -19,13 +19,41 @@ type Spot = {
 };
 
 export default function RecreationSpots() {
-  const [spots, setSpots] = useState<Spot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<Spot[]>([]);
   const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+
+  // State for search bar
+  const [searchTerm, setSearchTerm] = useState("");
+  // Function to send search query to AI backend and update results
+  const handleAISearch = async (query: string) => {
+    setLoading(true);
+    try {
+      // Send request to AI endpoint
+      const response = await fetch("/api/ai/search_spots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, type: "recreation" })
+      });
+      // Parse AI response
+      const result = await response.json();
+      // Update displayed results with AI-filtered spots
+      setFilteredSpots(result.spots || []);
+    } catch (error) {
+      console.error("AI search error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Handler for search bar submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Call AI search function
+    handleAISearch(searchTerm);
+  };
   // Edit Spot Handlers
   const handleEditClick = (spot: Spot) => {
     setEditingSpot(spot);
@@ -145,6 +173,18 @@ export default function RecreationSpots() {
           )}
         </div>
 
+        {/* Search bar integrated with AI */}
+        <form onSubmit={handleSearchSubmit} className="mb-4">
+          <FilterBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
+            onTagToggle={setSelectedCategory}
+            availableTags={categories.slice(1)}
+            type="recreation"
+          />
+        </form>
+
         {/* Owned Rooms Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {user &&
@@ -185,18 +225,6 @@ export default function RecreationSpots() {
                   </div>
                 </div>
               ))}
-        </div>
-
-        {/* Add spacing below owned rooms */}
-        <div className="mb-10">
-          <FilterBar
-            searchTerm=""
-            onSearchChange={() => {}}
-            selectedTags={selectedCategory === "All" ? [] : [selectedCategory]}
-            onTagToggle={setSelectedCategory}
-            availableTags={categories.slice(1)}
-            type="recreation"
-          />
         </div>
 
         {/* All Recreation Spots (including owned) */}
