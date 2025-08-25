@@ -33,6 +33,56 @@ interface Spot {
 
 export default function MySpots() {
   const { user } = useAuth();
+
+  // Realtime updates for spots and spot_members
+  useEffect(() => {
+    if (!user) return;
+    // Subscribe to spot deletions and updates
+    const spotChannel = supabase
+      .channel('realtime-spots')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'spots' }, (payload) => {
+        // Refetch owned and joined spots on any change
+        refetchSpots();
+      })
+      .subscribe();
+    // Subscribe to spot_members changes (for leave/join)
+    const memberChannel = supabase
+      .channel('realtime-spot-members')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'spot_members' }, (payload) => {
+        refetchSpots();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(spotChannel);
+      supabase.removeChannel(memberChannel);
+    };
+  }, [user]);
+
+  // Refetch spots helper
+  const refetchSpots = async () => {
+    setLoading(true);
+    const fetchOwned = supabase
+      .from("spots")
+      .select(
+        `id, name, description, location, category, max_members, created_at, created_by, spot_members (user_id), type`
+      )
+      .eq("created_by", user.id)
+      .order("created_at", { ascending: false });
+    const fetchJoined = supabase
+      .from("spot_members")
+      .select(
+        `spot_id, spots (id, name, description, location, category, max_members, created_at, created_by, spot_members (user_id), type)`
+      )
+      .eq("user_id", user.id);
+    Promise.all([fetchOwned, fetchJoined]).then(([ownedRes, joinedRes]) => {
+      setOwnedSpots(Array.isArray(ownedRes.data) ? ownedRes.data : []);
+      const joined = (Array.isArray(joinedRes.data) ? joinedRes.data : [])
+        .map((row: any) => row.spots)
+        .filter((spot: Spot | null) => spot && spot.created_by !== user.id);
+      setJoinedSpots(joined);
+      setLoading(false);
+    });
+  };
   const [ownedSpots, setOwnedSpots] = useState<Spot[]>([]);
   const [joinedSpots, setJoinedSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,9 +154,12 @@ export default function MySpots() {
     }
   };
   const handleDelete = async (id: string) => {
-    await supabase.from("spots").delete().eq("id", id);
-    setEditDialogOpen(false);
-    setEditingSpotId(null);
+    const { error } = await supabase.from("spots").delete().eq("id", id);
+    if (!error) {
+      setOwnedSpots((prev) => prev.filter((spot) => spot.id !== id));
+      setEditDialogOpen(false);
+      setEditingSpotId(null);
+    }
   };
 
   // Details Dialog for joined spots
@@ -122,12 +175,15 @@ export default function MySpots() {
   };
   const handleLeaveSpot = async (spot: Spot) => {
     if (!user) return;
-    await supabase
+    const { error } = await supabase
       .from("spot_members")
       .delete()
       .eq("spot_id", spot.id)
       .eq("user_id", user.id);
-    setDetailsDialogOpen(false);
+    if (!error) {
+      setJoinedSpots((prev) => prev.filter((s) => s.id !== spot.id));
+      setDetailsDialogOpen(false);
+    }
   };
 
   const formatTimeAgo = (dateString: string) => {
