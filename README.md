@@ -1,73 +1,65 @@
-# Welcome to your Lovable project
+ZenSpace
 
-## Project info
+ZenSpace is a web app that helps students discover the best study and recreation spots around them, rated for productivity and well-being. Whether you need a quiet space with strong WiFi or a lively spot to recharge with friends, ZenSpace connects you to the right place.
 
-**URL**: https://lovable.dev/projects/ece9cde2-2863-4716-9cfc-d9607b7b5f79
+Inspiration
 
-## How can I edit this code?
+As students, we often struggle to find the right place to study or relax. We’ve run into the same problem again and again: there’s no easy way to know about WiFi quality, noise levels, or availability of seats before arriving. ZenSpace was created to solve this frustration and make it easier to balance productivity and well-being.
 
-There are several ways of editing your application.
+What it does
 
-**Use Lovable**
+ZenSpace allows students to:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ece9cde2-2863-4716-9cfc-d9607b7b5f79) and start prompting.
+Browse a list of study and recreation spots shared by peers.
 
-Changes made via Lovable will be committed automatically to this repo.
+View ratings for amenities like WiFi, seating, and noise level.
 
-**Use your preferred IDE**
+Find places that best match their needs, whether for focused studying or group projects.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+How we built it
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Frontend: ReactJS
 
-Follow these steps:
+Backend: Python with Flask (routes & API handling)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+AI Integration: OpenAI API
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Database: Custom setup with curated local spot data
 
-# Step 3: Install the necessary dependencies.
-npm i
+Challenges we ran into
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Combining study and recreation data in a way that felt intuitive.
 
-**Edit a file directly in GitHub**
+Finding a reliable, low-cost (or free) database option.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Integrating the full stack (React + Flask + database) under hackathon time constraints.
 
-**Use GitHub Codespaces**
+Accomplishments that we're proud of
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Built a fully working MVP in 36 hours.
 
-## What technologies are used for this project?
+Designed a clean, user-friendly interface.
 
-This project is built with:
+Successfully connected Flask, the frontend, and the database under time pressure.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+What we learned
 
-## How can I deploy this project?
+How to build and ship a full-stack project quickly.
 
-Simply open [Lovable](https://lovable.dev/projects/ece9cde2-2863-4716-9cfc-d9607b7b5f79) and click on Share -> Publish.
+The importance of planning and structuring the database for future growth.
 
-## Can I connect a custom domain to my Lovable project?
+Improved our technical skills across React, Flask, and API integration.
 
-Yes, you can!
+What's next for ZenSpace
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+We plan to expand ZenSpace with features like:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+A community rating system to gamify engagement.
+
+An interactive map with location-based search to find top-rated spots nearby.
+
+A tutoring system to connect students beyond just study spots.
+
+Team
+
+Built by Arnav Gupta and Arnav Pandey during Recess Hacks 5.0
